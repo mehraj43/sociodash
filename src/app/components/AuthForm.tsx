@@ -1,5 +1,5 @@
 'use client';
-import { Button, Stack, TextField } from '@mui/material';
+import { Button, Snackbar, Stack, TextField } from '@mui/material';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
@@ -16,7 +16,7 @@ type Props = {
 };
 const AuthForm: React.FC<Props> = ({ isLoginPage }) => {
   const router = useRouter();
-  const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [registerUser, { isLoading, isSuccess }] = useRegisterUserMutation();
   const form = useForm<FormData>({
     defaultValues: {
       email: '',
@@ -33,7 +33,10 @@ const AuthForm: React.FC<Props> = ({ isLoginPage }) => {
         const result = await registerUser(data).unwrap();
         console.log({ result });
         if (result) {
-          return router.push('/dashboard');
+          const timeoutId = setTimeout(() => {
+            clearTimeout(timeoutId);
+            router.push('/dashboard');
+          }, 2000);
         }
       } catch (error: unknown) {
         console.log({ error });
@@ -75,6 +78,15 @@ const AuthForm: React.FC<Props> = ({ isLoginPage }) => {
           </Button>
         </Stack>
       </form>
+      <Snackbar
+        open={isSuccess}
+        autoHideDuration={3000}
+        message='You account has been successfully registered'
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+      />
       <DevTool control={control} />
     </>
   );
